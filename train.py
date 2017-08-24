@@ -4,6 +4,7 @@ import numpy as np
 import cv2
 import glob
 import time
+import pickle
 from sklearn.svm import LinearSVC, SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import StandardScaler
@@ -97,3 +98,20 @@ print('For these',n_predict, 'labels: ', y_test[0:n_predict])
 t2 = time.time()
 print(round(t2-t, 5), 'Seconds to predict', n_predict,'labels with SVC')
 
+
+"""
+clf = {}
+clf['svc'] = svc
+clf['scaler'] = X_scaler
+clf['colorspace'] = colorspace
+clf['hog_channel'] = hog_channel
+clf['orient'] = orient
+clf['pix_per_cell'] = pix_per_cell
+clf['cell_per_block'] = cell_per_block
+clf['spatial_size'] = spatial_size
+clf['hist_bins'] = hist_bins
+
+trained_clf = '../Data/vehicles-detection/trained_clf.p'
+with open(trained_clf, mode='wb') as f:
+    pickle.dump(new_train, f)
+"""
