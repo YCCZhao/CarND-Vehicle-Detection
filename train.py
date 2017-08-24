@@ -4,22 +4,16 @@ import numpy as np
 import cv2
 import glob
 import time
-import glob
-from sklearn.svm import LinearSVC
+from sklearn.svm import LinearSVC, SVC
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from skimage.feature import hog
 from functions import extract_features
-
+from get_images import get_images
 
 # load images
-notcars = glob.glob('../Data/vehicle-detection-basic/non-vehicles/non-vehicles/*.png')
-cars = []
-cars.extend(glob.glob('../Data/vehicle-detection-basic/vehicles/vehicles/GTI_Far/*.png'))
-cars.extend(glob.glob('../Data/vehicle-detection-basic/vehicles/vehicles/GTI_Left/*.png'))
-cars.extend(glob.glob('../Data/vehicle-detection-basic/vehicles/vehicles/GTI_MiddleClose/*.png'))
-cars.extend(glob.glob('../Data/vehicle-detection-basic/vehicles/vehicles/GTI_RIght/*.png'))
-cars.extend(glob.glob('../Data/vehicle-detection-basic/vehicles/vehicles/KITTI_extracted/*.png'))
+cars, notcars = get_iamges()
 
 #Feature Parameters
 colorspace = 'RGB' # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
@@ -28,28 +22,25 @@ pix_per_cell = 8
 cell_per_block = 2
 hog_channel = 'ALL' # Can be 0, 1, 2, or "ALL"
 spatial = 32
-histbin = 16
+histbin = 32
 
-cars_ = cars[:5]
-notcars_ = notcars[:5]
-
+#Extra image features
 t=time.time()
 X = []
 for file in cars:
     car_features = extract_features(file, cspace='RGB', spatial_size=(32, 32),
                          hist_bins=16, hist_range=(0, 256),
-                         orient=9, pix_per_cell=8, cell_per_block=2,
-                         hog_channel="ALL", spatial_feat=True, hist_feat=True,
+                         orient=orient, pix_per_cell=pix_per_cell, cell_per_block=cell_per_block,
+                         hog_channel=hog_channel, spatial_feat=True, hist_feat=True,
                          hog_feat=True)
     X.append(car_features)
 for file in notcars:
     notcar_features = extract_features(file, cspace='RGB', spatial_size=(32, 32),
                          hist_bins=16, hist_range=(0, 256),
-                         orient=9, pix_per_cell=8, cell_per_block=2,
-                         hog_channel="ALL", spatial_feat=True, hist_feat=True,
+                         orient=orient, pix_per_cell=pix_per_cell, cell_per_block=cell_per_block,
+                         hog_channel=hog_channel, spatial_feat=True, hist_feat=True,
                          hog_feat=True)
     X.append(notcar_features)
-
 X = np.array(X)
 print(X.shape)
 t2 = time.time()
@@ -72,13 +63,22 @@ X_train, X_test, y_train, y_test = train_test_split(scaled_X, y,
 
 print('Using spatial binning of:',spatial,
     'and', histbin,'histogram bins')
-if hog_channel is not None:
-    print('Using:',orient,'orientations',pix_per_cell,
-          'pixels per cell and', cell_per_block,'cells per block')
+if hog_feat:
+    print('Using:',orient,'orientations ,',pix_per_cell,
+          'pixels per cell, and ', cell_per_block,' cells per block')
 print('Feature vector length:', len(X_train[0]))
 
 # Use a linear SVC 
 svc = LinearSVC()
+"""
+parameters = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
+svr = SVC()
+svc = grid_search.GridSearchCV(svr, parameters)
+
+parameters = {'min_samples_split':[10, 50]}
+svr = DecisionTreeClassifier()
+svc = grid_search.GridSearchCV(svr, parameters)
+"""
 
 # Check the training time for the SVC
 t=time.time()
