@@ -1,52 +1,54 @@
-import matplotlib.image as mpimg
-import matplotlib.pyplot as plt
+#import matplotlib.image as mpimg
+#import matplotlib.pyplot as plt
 import numpy as np
-import cv2
-import glob
 import time
 import pickle
 from sklearn.svm import LinearSVC, SVC
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import GridSearchCV
+#from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from skimage.feature import hog
+from sklearn.utils import shuffle
 from functions import extract_features
 from get_images import get_images
 
 # load images
-cars, notcars = get_iamges()
+cars, notcars = get_images()
 
 #Feature Parameters
-colorspace = 'RGB' # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
+colorspace = 'YCrCb' # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
 orient = 9
 pix_per_cell = 8
 cell_per_block = 2
 hog_channel = 'ALL' # Can be 0, 1, 2, or "ALL"
 spatial = 32
 histbin = 32
-
+spatial_feat=True
+hist_feat=True
+hog_feat=True
 #Extra image features
 t=time.time()
 X = []
 for file in cars:
-    car_features = extract_features(file, cspace='RGB', spatial_size=(32, 32),
-                         hist_bins=16, hist_range=(0, 256),
+    car_features = extract_features(file, cspace=colorspace, spatial_size=(spatial, spatial),
+                         hist_bins=histbin, hist_range=(0, 256),
                          orient=orient, pix_per_cell=pix_per_cell, cell_per_block=cell_per_block,
-                         hog_channel=hog_channel, spatial_feat=True, hist_feat=True,
-                         hog_feat=True)
+                         hog_channel=hog_channel, spatial_feat=spatial_feat, hist_feat=hist_feat,
+                         hog_feat=hog_feat)
     X.append(car_features)
 for file in notcars:
-    notcar_features = extract_features(file, cspace='RGB', spatial_size=(32, 32),
-                         hist_bins=16, hist_range=(0, 256),
+    notcar_features = extract_features(file, cspace=colorspace, spatial_size=(spatial, spatial),
+                         hist_bins=histbin, hist_range=(0, 256),
                          orient=orient, pix_per_cell=pix_per_cell, cell_per_block=cell_per_block,
-                         hog_channel=hog_channel, spatial_feat=True, hist_feat=True,
-                         hog_feat=True)
+                         hog_channel=hog_channel, spatial_feat=spatial_feat, hist_feat=hist_feat,
+                         hog_feat=hog_feat)
     X.append(notcar_features)
 X = np.array(X)
 print(X.shape)
 t2 = time.time()
 print(round(t2-t, 2), 'Seconds to extract HOG features...')
-                  
+
+
 # Fit a per-column scaler
 X_scaler = StandardScaler().fit(X)
 # Apply the scaler to X
@@ -57,6 +59,7 @@ y = np.hstack((np.ones(len(cars)), np.zeros(len(notcars))))
 print(y.shape)
 
 # Split up data into randomized training and test sets
+scaled_X, y = shuffle(scaled_X, y)
 rand_state = np.random.randint(0, 100)
 X_train, X_test, y_train, y_test = train_test_split(scaled_X, y, 
                                                     test_size=0.2, 
@@ -71,15 +74,14 @@ print('Feature vector length:', len(X_train[0]))
 
 # Use a linear SVC 
 svc = LinearSVC()
-"""
-parameters = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
-svr = SVC()
-svc = grid_search.GridSearchCV(svr, parameters)
 
-parameters = {'min_samples_split':[10, 50]}
-svr = DecisionTreeClassifier()
-svc = grid_search.GridSearchCV(svr, parameters)
-"""
+#parameters = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
+#svr = SVC()
+#svc = GridSearchCV(svr, parameters)
+#parameters = {'min_samples_split':[10, 50]}
+#svr = DecisionTreeClassifier()
+#svc = grid_search.GridSearchCV(svr, parameters)
+
 
 # Check the training time for the SVC
 t=time.time()
@@ -99,7 +101,7 @@ t2 = time.time()
 print(round(t2-t, 5), 'Seconds to predict', n_predict,'labels with SVC')
 
 
-"""
+
 clf = {}
 clf['svc'] = svc
 clf['scaler'] = X_scaler
@@ -108,10 +110,9 @@ clf['hog_channel'] = hog_channel
 clf['orient'] = orient
 clf['pix_per_cell'] = pix_per_cell
 clf['cell_per_block'] = cell_per_block
-clf['spatial_size'] = spatial_size
-clf['hist_bins'] = hist_bins
+clf['spatial_size'] = spatial
+clf['hist_bins'] = histbin
 
-trained_clf = '../Data/vehicles-detection/trained_clf.p'
+trained_clf = '../Data/vehicle-detection-basic/trained_clf.p'
 with open(trained_clf, mode='wb') as f:
-    pickle.dump(new_train, f)
-"""
+    pickle.dump(clf, f)

@@ -22,7 +22,6 @@ def convert_color(img, cspace='YCrCb'):
 
 # Define a function to compute binned color features  
 def bin_spatial(img, size=(32, 32)):
-    res = []
     if len(img.shape) == 2:
         return cv2.resize(img, size).ravel()
     else:
@@ -34,23 +33,31 @@ def bin_spatial(img, size=(32, 32)):
     
 # Define a function to compute color histogram features  
 def color_hist(img, nbins=32, bins_range=(0, 256)):
-    # Compute the histogram of the color channels separately
-    channel1_hist = np.histogram(img[:,:,0], bins=nbins, range=bins_range)
-    channel2_hist = np.histogram(img[:,:,1], bins=nbins, range=bins_range)
-    channel3_hist = np.histogram(img[:,:,2], bins=nbins, range=bins_range)
-    # Concatenate the histograms into a single feature vector
-    hist_features = np.hstack((channel1_hist[0], channel2_hist[0], channel3_hist[0]))
-    # Return the individual histograms, bin_centers and feature vector
-    return hist_features
+    if len(img.shape) == 2:
+        return np.histogram(img, bins=nbins, range=bins_range)[0]
+    else:
+        # Compute the histogram of the color channels separately
+        channel1_hist = np.histogram(img[:,:,0], bins=nbins, range=bins_range)
+        channel2_hist = np.histogram(img[:,:,1], bins=nbins, range=bins_range)
+        channel3_hist = np.histogram(img[:,:,2], bins=nbins, range=bins_range)
+        # Concatenate the histograms into a single feature vector and return result
+        return np.hstack((channel1_hist[0], channel2_hist[0], channel3_hist[0]))
+
 
 
 # Define a function to return HOG features and visualization
 def get_hog_features(img, orient=9, pix_per_cell=8, cell_per_block=2, vis=False, feature_vec=True):
     if vis == True:
-        hog_features, hog_image = hog(img, orientations=orient, pixels_per_cell=(pix_per_cell, pix_per_cell), cells_per_block=(cell_per_block, cell_per_block), visualise=True, feature_vector=feature_vec)        
-        return features, hog_image
+        hog_features, hog_image = hog(img, orientations=orient, 
+                                      pixels_per_cell=(pix_per_cell, pix_per_cell), 
+                                      cells_per_block=(cell_per_block, cell_per_block), 
+                                      visualise=True, feature_vector=feature_vec)        
+        return hog_features, hog_image
     else:      
-        hog_features= hog(img, orientations=orient, pixels_per_cell=(pix_per_cell, pix_per_cell), cells_per_block=(cell_per_block, cell_per_block), visualise=False, feature_vector=feature_vec) 
+        hog_features= hog(img, orientations=orient, 
+                          pixels_per_cell=(pix_per_cell, pix_per_cell), 
+                          cells_per_block=(cell_per_block, cell_per_block), 
+                          visualise=False, feature_vector=feature_vec) 
         return hog_features
     
     
@@ -63,12 +70,16 @@ def extract_features(file, scale=False, cspace='RGB', spatial_size=(32, 32),
                      hog_feat=True):
     # Read in each one by one
     image = mpimg.imread(file)
+    
+    if 'jpg' in file:
+        image = image.astype(np.float32)/255
+    print(np.max(image))
     # scale image to the same size as the rest of the training images if needed
     if scale:
-        feature_image = cv2.resize(feature_image, (64, 64))  
+        image = cv2.resize(image, (64, 64))  
     # apply color conversion if other than 'RGB'
     if cspace != 'RGB':
-        feature_image = Connvert_color(image, cspace=cspace)
+        feature_image = convert_color(image, cspace=cspace)
     else:
         feature_image = np.copy(image)  
         
@@ -105,7 +116,7 @@ def extract_features(file, scale=False, cspace='RGB', spatial_size=(32, 32),
 
 
 # Define a single function that can extract features using hog sub-sampling and make predictions
-def find_cars(img, cspace='RGB', ystart, ystop, scale, svc, X_scaler, 
+def find_cars(img, cspace, ystart, ystop, scale, svc, X_scaler, 
               orient, pix_per_cell, cell_per_block, spatial_size, hist_bins,
               hog_channel="ALL", spatial_feat=True, hist_feat=True):   
     bbox_list = []
@@ -175,7 +186,7 @@ def find_cars(img, cspace='RGB', ystart, ystop, scale, svc, X_scaler,
                 test_features.append(hist_features)
 
             # Scale features and make a prediction
-            test_features = X_scaler.transform(np.concatenate(features).reshape(1, -1))
+            test_features = X_scaler.transform(np.concatenate(test_features).reshape(1, -1))
             #test_features = X_scaler.transform(np.hstack((shape_feat, hist_feat)).reshape(1, -1))    
             test_prediction = svc.predict(test_features)
             
