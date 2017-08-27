@@ -4,10 +4,11 @@ import numpy as np
 import time
 import pickle
 from sklearn.svm import LinearSVC, SVC
-from sklearn.model_selection import GridSearchCV
 #from sklearn.tree import DecisionTreeClassifier
+#from sklearn.model_selection import GridSearchCV
+#from sklearn.model_selection import train_test_split
+from sklearn.cross_validation import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from functions import extract_features
 from get_images import get_images
@@ -29,20 +30,24 @@ hog_feat=True
 #Extra image features
 t=time.time()
 X = []
-for file in cars:
+for idx, file in enumerate(cars):
     car_features = extract_features(file, cspace=colorspace, spatial_size=(spatial, spatial),
                          hist_bins=histbin, hist_range=(0, 256),
                          orient=orient, pix_per_cell=pix_per_cell, cell_per_block=cell_per_block,
                          hog_channel=hog_channel, spatial_feat=spatial_feat, hist_feat=hist_feat,
                          hog_feat=hog_feat)
     X.append(car_features)
-for file in notcars:
+    if idx%100 == 0:
+        print(idx)
+for idx, file in enumerate(notcars):
     notcar_features = extract_features(file, cspace=colorspace, spatial_size=(spatial, spatial),
                          hist_bins=histbin, hist_range=(0, 256),
                          orient=orient, pix_per_cell=pix_per_cell, cell_per_block=cell_per_block,
                          hog_channel=hog_channel, spatial_feat=spatial_feat, hist_feat=hist_feat,
                          hog_feat=hog_feat)
     X.append(notcar_features)
+    if idx%100 == 0:
+        print(idx)
 X = np.array(X)
 print(X.shape)
 t2 = time.time()
