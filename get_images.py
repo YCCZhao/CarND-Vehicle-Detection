@@ -8,7 +8,6 @@ Created on Wed Aug 23 20:33:30 2017
 import glob
 from sklearn.utils import shuffle
 
-
 # load images
 def get_images():  
   notcars = []
@@ -21,9 +20,10 @@ def get_images():
   cars.extend(glob.glob('../Data/vehicle-detection-basic/vehicles/vehicles/GTI_RIght/*.png'))
   cars.extend(glob.glob('../Data/vehicle-detection-basic/vehicles/vehicles/KITTI_extracted/*.png'))
   cars.extend(glob.glob('../Data/vehicle-detection-basic/vehicles/aug/*.jpg'))
-  notcars = shuffle(notcars)[:51108]
+  cars = shuffle(cars)
+  notcars = shuffle(notcars)
+  cars, notcars = cars[:20000], notcars[:20000]
   
   return cars, notcars
-
 
 

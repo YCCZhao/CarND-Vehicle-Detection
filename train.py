@@ -16,6 +16,7 @@ from get_images import get_images
 # load images
 cars, notcars = get_images()
 
+
 #Feature Parameters
 colorspace = 'YCrCb' # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
 orient = 9
@@ -23,7 +24,7 @@ pix_per_cell = 8
 cell_per_block = 2
 hog_channel = 'ALL' # Can be 0, 1, 2, or "ALL"
 spatial = 32
-histbin = 32
+histbin = 16
 spatial_feat=True
 hist_feat=True
 hog_feat=True
@@ -78,10 +79,10 @@ if hog_feat:
 print('Feature vector length:', len(X_train[0]))
 
 # Use a linear SVC 
-svc = LinearSVC()
+#svc = LinearSVC()
 
 #parameters = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
-#svr = SVC()
+svc = SVC(kernel='rbf', C=10)
 #svc = GridSearchCV(svr, parameters)
 #parameters = {'min_samples_split':[10, 50]}
 #svr = DecisionTreeClassifier()
@@ -118,6 +119,6 @@ clf['cell_per_block'] = cell_per_block
 clf['spatial_size'] = spatial
 clf['hist_bins'] = histbin
 
-trained_clf = '../Data/vehicle-detection-basic/trained_clf.p'
+trained_clf = '../Data/vehicle-detection-basic/trained_clf3.p'
 with open(trained_clf, mode='wb') as f:
     pickle.dump(clf, f)
