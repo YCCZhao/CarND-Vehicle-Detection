@@ -69,7 +69,15 @@ For color spatial features, I started with `spatial_size=(32, 32)`, and then tri
 ![spatial_size_32](./examples/car_notcar_spatial_YCrCb.jpg)
 ![spatial_size_16](./examples/car_notcar_spatial_16.jpg)
 
+32 bins: 
+
+
 ![bins_32](./examples/car_notcar_histogram.jpg)
+
+
+16 bins: 
+
+
 ![bins_16](./examples/car_notcar_histogram_16.jpg)
 
 `spatial_size=(16, 16)` and `hist_bins=16` omitted too much information, thus `spatial_size=(32, 32)` and `hist_bins=32` were chosen.
@@ -80,7 +88,15 @@ It was noticed that only channel 1 histogram has significant difference between 
 
 For HOG features, I started with `orient=9` and `cell_per_block=2`, and then tried `orient=18` and `cell_per_block=1`. Output with each of the parameters are shown below. 
 
+9 orientations
+
+
 ![orientation_9](./examples/car_notcar_hog.jpg)
+
+
+18 orientations
+
+
 ![orientation_18](./examples/car_notcar_hog_18.jpg)
 
 Increasing `orientations` didn't increase the accuracy much therefore `orientations=9` was used. Similarly decreasing `cells_per_block` didn't reduce the accuracy much. Therefore `cells_per_block=(1, 1)` to reduce feature size.
