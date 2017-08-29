@@ -67,7 +67,7 @@ YCrCb color space was used because it provides more information, three channels 
 For color spatial features, I started with `spatial_size=(32, 32)`, and then tried `spatial_size=(16, 16)`. Output with each of the parameters are shown below. For color histogram feature, I started with `hist_bins=32`, and then tried `hist_bins=16`. Output with each of the parameters are shown below. 
 
 ![spatial_size_32](./examples/car_notcar_spatial_YCrCb.jpg)
-![spatial_size_16](./examples/car_notcar_spatial_YCrCb_16.jpg)
+![spatial_size_16](./examples/car_notcar_spatial_16.jpg)
 
 ![bins_32](./examples/car_notcar_histogram.jpg)
 ![bins_16](./examples/car_notcar_histogram_16.jpg)
