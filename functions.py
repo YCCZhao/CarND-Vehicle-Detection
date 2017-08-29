@@ -105,7 +105,7 @@ def extract_features(file, scale=False, cspace='RGB', spatial_size=(32, 32),
 
     # Compute histogram features if flag is set
     if hist_feat == True:
-        hist_features = color_hist(feature_image, nbins=hist_bins)
+        hist_features = color_hist(feature_image[:,:,0], nbins=hist_bins)
         # Append features to list
         features.append(hist_features)
 
@@ -180,7 +180,7 @@ def find_cars(img, cspace, ystart, ystop, scale, svc, X_scaler,
                 spatial_features = bin_spatial(subimg, size=spatial_size)
                 test_features.append(spatial_features)
             if hist_feat:
-                hist_features = color_hist(subimg, nbins=hist_bins)
+                hist_features = color_hist(subimg[:,:,0], nbins=hist_bins)
                 test_features.append(hist_features)
 
             # Scale features and make a prediction

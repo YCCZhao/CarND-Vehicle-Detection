@@ -1,9 +1,7 @@
-#import matplotlib.image as mpimg
-#import matplotlib.pyplot as plt
 import numpy as np
 import time
 import pickle
-from sklearn.svm import LinearSVC, SVC
+from sklearn.svm import LinearSVC
 #from sklearn.tree import DecisionTreeClassifier
 #from sklearn.model_selection import GridSearchCV
 #from sklearn.model_selection import train_test_split
@@ -16,18 +14,18 @@ from get_images import get_images
 # load images
 cars, notcars = get_images()
 
-
 #Feature Parameters
 colorspace = 'YCrCb' # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
 orient = 9
 pix_per_cell = 8
-cell_per_block = 2
-hog_channel = 'ALL' # Can be 0, 1, 2, or "ALL"
+cell_per_block = 1
+hog_channel = "ALL" # Can be 0, 1, 2, or "ALL"
 spatial = 32
-histbin = 16
+histbin = 32
 spatial_feat=True
 hist_feat=True
 hog_feat=True
+
 #Extra image features
 t=time.time()
 X = []
@@ -54,7 +52,6 @@ print(X.shape)
 t2 = time.time()
 print(round(t2-t, 2), 'Seconds to extract HOG features...')
 
-
 # Fit a per-column scaler
 X_scaler = StandardScaler().fit(X)
 # Apply the scaler to X
@@ -79,15 +76,15 @@ if hog_feat:
 print('Feature vector length:', len(X_train[0]))
 
 # Use a linear SVC 
-#svc = LinearSVC()
+svc = LinearSVC()
 
+# other classifiers tried
 #parameters = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
-svc = SVC(kernel='rbf', C=10)
+#svc = SVC(kernel='rbf', C=1)
 #svc = GridSearchCV(svr, parameters)
 #parameters = {'min_samples_split':[10, 50]}
 #svr = DecisionTreeClassifier()
 #svc = grid_search.GridSearchCV(svr, parameters)
-
 
 # Check the training time for the SVC
 t=time.time()
@@ -106,8 +103,7 @@ print('For these',n_predict, 'labels: ', y_test[0:n_predict])
 t2 = time.time()
 print(round(t2-t, 5), 'Seconds to predict', n_predict,'labels with SVC')
 
-
-
+# Save trained SVC
 clf = {}
 clf['svc'] = svc
 clf['scaler'] = X_scaler
